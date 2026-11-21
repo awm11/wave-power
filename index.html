@@ -68,6 +68,18 @@ details{background:#fff;border:1px solid #dfe4e8;border-radius:14px;margin-botto
 summary{cursor:pointer;padding:12px 18px;font-size:14px;font-weight:700;min-height:44px;display:flex;align-items:center}
 summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 details>div{padding:0 18px 14px;color:var(--muted);font-size:14px;line-height:1.5}
+.quizBar{margin-top:14px}
+.quizBox{margin-top:12px;background:#fff;border:1px solid #dfe4e8;border-radius:14px;padding:16px 18px}
+.quizTop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.quizCount{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#3867a8}
+.quizBox h2{margin:0 0 10px;font-size:16px;line-height:1.35}
+.quizBox textarea{width:100%;font:inherit;font-size:16px;line-height:1.45;padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;resize:vertical;color:var(--ink);background:var(--panel)}
+.quizBox textarea:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue)}
+.answer{margin-top:10px;background:var(--green-light);border:1px solid #b9e2c6;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.5;color:#1f5a34}
+.answer b{color:#19743b}
+.quizBtns{margin-top:12px}
+.seg:disabled{opacity:.45;cursor:default}
+.srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* awm Physics branding: kept deliberately quiet so it never competes with the simulation */
 .awm-logo-link{display:inline-block;line-height:0;border-radius:12px;opacity:.85;transition:opacity .15s ease,transform .2s ease}
 .awm-logo-link:hover,.awm-logo-link:focus-visible{opacity:1;transform:rotate(8deg)}
@@ -162,7 +174,15 @@ details>div{padding:0 18px 14px;color:var(--muted);font-size:14px;line-height:1.
   </section>
   <div class="didYouKnow"><b>Did you know?</b> Wave power is renewable but <b>unreliable</b>: it produces nothing when the sea is calm.</div>
 
-  <p class="intro" style="margin-top:14px">Not to scale. The p.d. values come from a simple model.</p>
+  <div class="quizBar"><button class="seg sendBtn" id="quizBtn" aria-expanded="false" aria-controls="quiz">Quick quiz</button></div>
+  <section class="quizBox" id="quiz" hidden aria-live="polite">
+    <div class="quizTop"><span class="quizCount" id="qCount">Question 1 of 6</span><button class="seg" id="qClose">Close</button></div>
+    <h2 id="qText"></h2>
+    <label class="srOnly" for="qInput">Your answer</label>
+    <textarea id="qInput" rows="3" placeholder="Type your answer here…"></textarea>
+    <div class="answer" id="qAns" hidden></div>
+    <div class="btnRow quizBtns"><button class="seg" id="qPrev">← Previous</button><button class="seg sendBtn" id="qReveal">Reveal answer</button><button class="seg" id="qNext">Next →</button></div>
+  </section>
   <footer class="bottom-block">
     <a class="more-sims" href="/" target="_blank" rel="noopener noreferrer"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23244b61%22/%3E%0A%20%20%3Cpath%20d%3D%22M13%2051%2029.5%2012%22%20fill%3D%22none%22%20stroke%3D%22%238bd7ff%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22m29.5%2012%2019%2039%22%20fill%3D%22none%22%20stroke%3D%22%23f7eee0%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2036h19%22%20fill%3D%22none%22%20stroke%3D%22%237ee2a8%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M45%2048c5-5%207-11%207-18%22%20fill%3D%22none%22%20stroke%3D%22%23ffc16f%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.8%22/%3E%0A%20%20%3Ccircle%20cx%3D%2252%22%20cy%3D%2227%22%20r%3D%225.5%22%20fill%3D%22%23ffb356%22%20stroke%3D%22%23244b61%22%20stroke-width%3D%222%22/%3E%0A%3C/svg%3E" alt="" class="more-sims-icon" /><span>See other simulations</span></a>
     <a class="contact" href="mailto:hello@alexmoorephysics.com">hello@alexmoorephysics.com</a>
@@ -339,6 +359,26 @@ $('play').addEventListener('click',()=>{S.run=!S.run;setPlay()});setPlay();
 $('clear').addEventListener('click',()=>{hist=[];t=0});
 readVars();
 requestAnimationFrame(frame);
+
+// Quick quiz: one question at a time, type an answer, then reveal the model answer
+const QUIZ=[
+ ['Why is a potential difference induced across the coil?','The magnet moves relative to the coil, so the magnetic field through the coil changes. A changing magnetic field through a coil induces a p.d.'],
+ ['Why is the current alternating rather than direct?','The magnet moves up, then down. Each time its direction reverses, the direction of the induced p.d. reverses, so the current changes direction.'],
+ ['Give three ways to increase the induced p.d.','More turns on the coil; a stronger magnet; make the magnet move faster (bigger waves or a shorter wave period).'],
+ ['The wave period is 8 s. What is the frequency of the alternating current?','f = 1 / T = 1 / 8 = 0.125 Hz'],
+ ['When is the induced p.d. zero, and why?','At the crest and the trough of the wave. The magnet stops for an instant, so the magnetic field through the coil is not changing.'],
+ ['(Higher) Why does it get harder to move the magnet when a current flows?','The induced current makes the coil a magnet whose field opposes the motion that caused it. Work must be done against this force, and that work becomes electrical energy.']];
+let qi=0;const qAnswers=QUIZ.map(()=>''),qShown=QUIZ.map(()=>false);
+function showQ(){$('qCount').textContent=`Question ${qi+1} of ${QUIZ.length}`;$('qText').textContent=QUIZ[qi][0];$('qInput').value=qAnswers[qi];
+  $('qAns').innerHTML='<b>Answer:</b> '+QUIZ[qi][1];$('qAns').hidden=!qShown[qi];$('qReveal').textContent=qShown[qi]?'Hide answer':'Reveal answer';
+  $('qPrev').disabled=qi===0;$('qNext').disabled=qi===QUIZ.length-1}
+const openQuiz=o=>{$('quiz').hidden=!o;$('quizBtn').setAttribute('aria-expanded',o);$('quizBtn').textContent=o?'Close quiz':'Quick quiz';if(o){showQ();$('qInput').focus({preventScroll:true});$('quiz').scrollIntoView({behavior:'smooth',block:'nearest'})}};
+$('quizBtn').addEventListener('click',()=>openQuiz($('quiz').hidden));
+$('qClose').addEventListener('click',()=>{openQuiz(false);$('quizBtn').focus()});
+$('qInput').addEventListener('input',e=>qAnswers[qi]=e.target.value);
+$('qReveal').addEventListener('click',()=>{qShown[qi]=!qShown[qi];showQ()});
+$('qPrev').addEventListener('click',()=>{if(qi>0){qi--;showQ()}});
+$('qNext').addEventListener('click',()=>{if(qi<QUIZ.length-1){qi++;showQ()}});
 
 // Official Buy Me a Coffee button (same embed as the other simulations). The claude.ai preview blocks its script, so the static lookalike stays there.
 if(/(^|\.)alexmoorephysics\.com$|\.github\.io$/.test(location.hostname)){
