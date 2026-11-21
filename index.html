@@ -30,13 +30,16 @@ h3{font-size:19px;font-weight:600;margin-bottom:6px}
 header.band{background:var(--band);color:#fff;padding-bottom:clamp(22px,3vw,36px)}
 header .tag{display:inline-block;font-size:14px;background:rgba(255,255,255,.12);border-radius:99px;padding:3px 12px;margin-bottom:12px}
 header p{max-width:68ch;margin:12px 0 0;color:#cfe3ec}
-.simgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.simgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:auto 1fr;grid-template-areas:"stage side" "graph side";gap:20px;align-items:start}
+.stage{grid-area:stage}.graphbox{grid-area:graph}.side{grid-area:side;display:flex;flex-direction:column;gap:20px}
+.reads{padding:14px 16px 8px}
+.reads .meter{margin:0 auto 6px}
 .stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 #sim{display:block;width:100%;aspect-ratio:900/560}
-.readouts{display:grid;grid-template-columns:200px repeat(3,minmax(0,1fr));gap:10px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
-.ro b{display:block;font:600 24px/1.1 Lexend,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ro{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.ro b{display:block;font:600 21px/1.1 Lexend,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
 .ro span{font-size:14px;color:var(--mute)}
-.meter{position:relative;width:200px;aspect-ratio:220/156}
+.meter{position:relative;width:min(100%,230px);aspect-ratio:220/156}
 .meter svg{position:absolute;inset:0;width:100%;height:100%}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
 .ctl{margin-bottom:16px}
@@ -53,7 +56,6 @@ input[type=range]{width:100%;height:44px;accent-color:var(--accent);margin:0}
 .btn{flex:1;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:700 15px "Atkinson Hyperlegible",sans-serif;cursor:pointer}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#1a0d07}
 button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.graphbox{margin-top:20px}
 .fig{position:relative;min-height:240px}.fig>canvas{position:absolute;inset:0;width:100%;height:100%}
 .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:14px;color:var(--mute);margin:8px 2px 0}
 .legend i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
@@ -71,8 +73,8 @@ details>div{padding:0 16px 14px 34px;color:var(--ink)}
 .chain span{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:15px}
 section.alt .chain span{background:var(--bg)}
 footer{font-size:14px;color:var(--mute)}
-@media(max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr)}.panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:0 22px}}
-@media(max-width:600px){.readouts{grid-template-columns:repeat(2,minmax(0,1fr))}.meter{grid-column:1/-1;margin:0 auto}.ro b{font-size:20px}}
+@media(max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"stage" "reads" "graph" "controls"}.side{display:contents}.reads{grid-area:reads}.ctlpanel{grid-area:controls;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:0 22px}}
+@media(max-width:600px){.ro b{font-size:19px}}
 </style>
 </head>
 <body>
@@ -84,10 +86,15 @@ footer{font-size:14px;color:var(--mute)}
 
 <main class="band"><div class="wrap">
   <div class="simgrid">
-    <div>
-      <div class="stage">
+    <div class="stage">
         <canvas id="sim" aria-label="Animated cross-section: a floating ball on waves pulls a magnet up and down inside a coil on a concrete block on the sea floor; a cable carries current to a bulb on shore."></canvas>
-        <div class="readouts">
+    </div>
+    <div class="graphbox">
+        <div class="fig"><canvas id="graph" aria-label="Graphs of ball height and induced p.d. against time"></canvas></div>
+        <div class="legend"><span><i style="background:var(--disp)"></i>Height of ball above calm sea level</span><span><i style="background:var(--pd)"></i>Induced p.d. across the coil</span></div>
+      </div>
+    <div class="side">
+      <div class="panel reads" aria-label="Meter readings">
           <div class="meter" role="img" aria-label="Centre-zero voltmeter showing the induced p.d.">
             <svg viewBox="0 0 220 156">
               <rect x="2" y="2" width="216" height="152" rx="14" fill="var(--case)" stroke="var(--line)" stroke-width="1.5"/>
@@ -103,29 +110,23 @@ footer{font-size:14px;color:var(--mute)}
           <div class="ro"><b id="vNow">0.0 V</b><span>Induced p.d. now</span></div>
           <div class="ro"><b id="vPeak">0.0 V</b><span>Peak p.d.</span></div>
           <div class="ro"><b id="vSpeed">0.00 m/s</b><span>Magnet speed</span></div>
+      </div>
+      <aside class="panel ctlpanel" aria-label="Controls">
+        <div class="ctl"><label for="amp">Wave height (amplitude) <output id="ampO">1.0 m</output></label><input id="amp" type="range" min="0" max="2" step="0.1" value="1"></div>
+        <div class="ctl"><label for="per">Wave period <output id="perO">6 s</output></label><input id="per" type="range" min="3" max="12" step="0.5" value="6"></div>
+        <div class="ctl"><label for="turns">Turns on the coil <output id="turnsO">200</output></label><input id="turns" type="range" min="50" max="500" step="10" value="200"><div class="hint">Each extra loop drawn stands for 30 more turns.</div></div>
+        <div class="ctl"><label for="mag">Magnet strength <output id="magO">1.0×</output></label><input id="mag" type="range" min="0.5" max="2" step="0.1" value="1"></div>
+        <div class="ctl checks">
+          <label><input id="mixed" type="checkbox"> Irregular (real) sea</label>
+          <label><input id="field" type="checkbox" checked> Show magnetic field</label>
+          <label><input id="labels" type="checkbox" checked> Show labels</label>
         </div>
-      </div>
-      <div class="graphbox">
-        <div class="fig"><canvas id="graph" aria-label="Graphs of ball height and induced p.d. against time"></canvas></div>
-        <div class="legend"><span><i style="background:var(--disp)"></i>Height of ball above calm sea level</span><span><i style="background:var(--pd)"></i>Induced p.d. across the coil</span></div>
-      </div>
+        <div class="ctl"><label>Speed</label>
+          <div class="seg" id="speed"><button data-s="0.5" aria-pressed="false">½×</button><button data-s="1" aria-pressed="true">1×</button><button data-s="2" aria-pressed="false">2×</button><button data-s="4" aria-pressed="false">4×</button></div>
+        </div>
+        <div class="ctl"><div class="btns"><button class="btn primary" id="play">Pause</button><button class="btn" id="clear">Clear graph</button></div></div>
+      </aside>
     </div>
-
-    <aside class="panel" aria-label="Controls">
-      <div class="ctl"><label for="amp">Wave height (amplitude) <output id="ampO">1.0 m</output></label><input id="amp" type="range" min="0" max="2" step="0.1" value="1"></div>
-      <div class="ctl"><label for="per">Wave period <output id="perO">6 s</output></label><input id="per" type="range" min="3" max="12" step="0.5" value="6"></div>
-      <div class="ctl"><label for="turns">Turns on the coil <output id="turnsO">200</output></label><input id="turns" type="range" min="50" max="500" step="10" value="200"><div class="hint">Each extra loop drawn stands for 30 more turns.</div></div>
-      <div class="ctl"><label for="mag">Magnet strength <output id="magO">1.0×</output></label><input id="mag" type="range" min="0.5" max="2" step="0.1" value="1"></div>
-      <div class="ctl checks">
-        <label><input id="mixed" type="checkbox"> Irregular (real) sea</label>
-        <label><input id="field" type="checkbox" checked> Show magnetic field</label>
-        <label><input id="labels" type="checkbox" checked> Show labels</label>
-      </div>
-      <div class="ctl"><label>Speed</label>
-        <div class="seg" id="speed"><button data-s="0.5" aria-pressed="false">½×</button><button data-s="1" aria-pressed="true">1×</button><button data-s="2" aria-pressed="false">2×</button><button data-s="4" aria-pressed="false">4×</button></div>
-      </div>
-      <div class="ctl"><div class="btns"><button class="btn primary" id="play">Pause</button><button class="btn" id="clear">Clear graph</button></div></div>
-    </aside>
   </div>
   <p class="note">Wave shape and depth are not to scale. The p.d. values come from a simple model, so compare them with each other rather than with a real device.</p>
 </div></main>
