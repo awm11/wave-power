@@ -6,7 +6,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23244b61%22/%3E%0A%20%20%3Cpath%20d%3D%22M13%2051%2029.5%2012%22%20fill%3D%22none%22%20stroke%3D%22%238bd7ff%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22m29.5%2012%2019%2039%22%20fill%3D%22none%22%20stroke%3D%22%23f7eee0%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2036h19%22%20fill%3D%22none%22%20stroke%3D%22%237ee2a8%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M45%2048c5-5%207-11%207-18%22%20fill%3D%22none%22%20stroke%3D%22%23ffc16f%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.8%22/%3E%0A%20%20%3Ccircle%20cx%3D%2252%22%20cy%3D%2227%22%20r%3D%225.5%22%20fill%3D%22%23ffb356%22%20stroke%3D%22%23244b61%22%20stroke-width%3D%222%22/%3E%0A%3C/svg%3E" />
 <title>Wave Power Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Lato:wght@400&display=swap" />
 <style>
 /* Layout: matches the other alexmoorephysics.com simulations. Header, one white card (simulation, readings and controls), then numbered explanation boxes. */
 :root{--page:#f3f5f7;--card:#fff;--panel:#fafbfc;--ink:#202020;--muted:#59636f;--line:#d9dee4;--line-strong:#c6ccd3;
@@ -75,11 +75,19 @@ details>div{padding:0 18px 14px;color:var(--muted);font-size:14px;line-height:1.
 .shell.has-brand{position:relative}
 .shell.has-brand>.heading{padding-right:76px}
 .awm-logo-link.page-logo{position:absolute;top:0;right:0}
-.awm-footer{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 10px;padding:18px 16px 0;color:rgba(32,32,32,.5);font-size:12px;line-height:1.4}
-.awm-footer a{color:rgba(32,32,32,.7);text-decoration:none}
-.awm-footer a:hover,.awm-footer a:focus-visible{color:var(--ink);text-decoration:underline}
+.bottom-block{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:16px 40px;margin-top:22px;padding:6px 16px}
+.more-sims{display:inline-flex;align-items:center;gap:14px;font-weight:700;font-size:16px;color:var(--ink);text-decoration:none}
+.more-sims:hover,.more-sims:focus-visible{color:var(--blue)}
+.more-sims-icon{width:42px;height:42px;display:block;transition:transform .2s ease}
+.more-sims:hover .more-sims-icon{transform:scale(1.15) rotate(10deg)}
+.contact{color:var(--muted);font-size:16px;text-decoration:none}
+.contact:hover,.contact:focus-visible{color:var(--ink);text-decoration:underline}
+.bmc{display:inline-flex;align-items:center;gap:12px;background:#FFDD00;color:#000;border-radius:12px;padding:0 24px 0 20px;height:56px;font:400 22px Lato,var(--sans);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}
+.bmc svg{width:22px;height:30px;flex:none}
+.bmc:hover,.bmc:focus-visible{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.more-sims:focus-visible,.contact:focus-visible,.bmc:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 @media(max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"stage" "reads" "graph" "controls"}.side{display:contents}.reads{grid-area:reads}.ctlpanel{grid-area:controls}}
-@media(max-width:760px){body{padding-block:10px}.lesson{grid-template-columns:1fr}.awm-logo-link img{width:44px;height:44px}.shell.has-brand>.heading{padding-right:60px}}
+@media(max-width:760px){body{padding-block:10px}.bottom-block{flex-direction:column;gap:14px}.lesson{grid-template-columns:1fr}.awm-logo-link img{width:44px;height:44px}.shell.has-brand>.heading{padding-right:60px}}
 @media(prefers-reduced-motion:reduce){.toggle,.knob{transition:none}}
 </style>
 </head>
@@ -180,12 +188,13 @@ details>div{padding:0 18px 14px;color:var(--muted);font-size:14px;line-height:1.
   </section>
 
   <p class="intro" style="margin-top:14px">Wave shape and depth are not to scale. The p.d. values come from a simple model, so compare them with each other rather than with a real device.</p>
-  <footer class="awm-footer">
-    <a href="/" target="_blank" rel="noopener noreferrer">More simulations</a>
-    <span aria-hidden="true">·</span>
-    <a href="https://www.buymeacoffee.com/awmPhysics" target="_blank" rel="noopener noreferrer">Support the project ☕</a>
-    <span aria-hidden="true">·</span>
-    <a href="mailto:hello@alexmoorephysics.com">hello@alexmoorephysics.com</a>
+  <footer class="bottom-block">
+    <a class="more-sims" href="/" target="_blank" rel="noopener noreferrer"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23244b61%22/%3E%0A%20%20%3Cpath%20d%3D%22M13%2051%2029.5%2012%22%20fill%3D%22none%22%20stroke%3D%22%238bd7ff%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22m29.5%2012%2019%2039%22%20fill%3D%22none%22%20stroke%3D%22%23f7eee0%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M21%2036h19%22%20fill%3D%22none%22%20stroke%3D%22%237ee2a8%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22/%3E%0A%20%20%3Cpath%20d%3D%22M45%2048c5-5%207-11%207-18%22%20fill%3D%22none%22%20stroke%3D%22%23ffc16f%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20opacity%3D%22.8%22/%3E%0A%20%20%3Ccircle%20cx%3D%2252%22%20cy%3D%2227%22%20r%3D%225.5%22%20fill%3D%22%23ffb356%22%20stroke%3D%22%23244b61%22%20stroke-width%3D%222%22/%3E%0A%3C/svg%3E" alt="" class="more-sims-icon" /><span>See other simulations</span></a>
+    <a class="contact" href="mailto:hello@alexmoorephysics.com">hello@alexmoorephysics.com</a>
+    <a class="bmc" href="https://www.buymeacoffee.com/awmPhysics" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 32" aria-hidden="true"><path d="M3 7.5h18M4.2 4.5h15.6l1.2 3H3zM5 7.5l2 21.5h10l2-21.5" fill="none" stroke="#000" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"/><path d="M6 14h12" stroke="#000" stroke-width="1.9" stroke-linecap="round"/></svg>
+      <span>Buy me a coffee</span>
+    </a>
   </footer>
 </div>
 <script>
