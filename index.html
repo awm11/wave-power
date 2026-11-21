@@ -84,6 +84,9 @@ details>div{padding:0 18px 14px;color:var(--muted);font-size:14px;line-height:1.
 .contact:hover,.contact:focus-visible{color:var(--ink);text-decoration:underline}
 .bmc{display:inline-flex;align-items:center;gap:12px;background:#FFDD00;color:#000;border-radius:12px;padding:0 24px 0 20px;height:56px;font:400 22px Lato,var(--sans);text-decoration:none;transition:transform .15s ease,box-shadow .15s ease}
 .bmc svg{width:22px;height:30px;flex:none}
+.coffee-embed-frame{display:inline-block;width:250px;height:60px;border-radius:12px;overflow:hidden;line-height:0;transition:transform .18s ease}
+.coffee-embed-frame:hover{transform:scale(1.03)}
+.coffee-embed{width:250px;height:60px;border:0;display:block}
 .bmc:hover,.bmc:focus-visible{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
 .more-sims:focus-visible,.contact:focus-visible,.bmc:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
 @media(max-width:900px){.simgrid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"stage" "reads" "graph" "controls"}.side{display:contents}.reads{grid-area:reads}.ctlpanel{grid-area:controls}}
@@ -364,6 +367,14 @@ $('play').addEventListener('click',()=>{S.run=!S.run;setPlay()});setPlay();
 $('clear').addEventListener('click',()=>{hist=[];t=0});
 readVars();
 requestAnimationFrame(frame);
+
+// Official Buy Me a Coffee button (same embed as the other simulations). The claude.ai preview blocks its script, so the static lookalike stays there.
+if(/(^|\.)alexmoorephysics\.com$|\.github\.io$/.test(location.hostname)){
+  const embed=`<!doctype html><html lang="en"><head><meta charset="utf-8"><style>html,body{width:250px;height:60px;margin:0;overflow:hidden;background:#FFDD00}</style></head><body><script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="awmPhysics" data-color="#FFDD00" data-emoji="" data-font="Lato" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"><\/script></body></html>`;
+  const wrap=document.createElement('span');wrap.className='coffee-embed-frame';
+  const f=document.createElement('iframe');f.className='coffee-embed';f.title='Buy me a coffee';f.setAttribute('sandbox','allow-scripts allow-popups allow-popups-to-escape-sandbox');f.srcdoc=embed;
+  wrap.appendChild(f);document.querySelector('.bmc').replaceWith(wrap);
+}
 }
 </script>
 </body>
